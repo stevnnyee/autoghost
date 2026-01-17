@@ -170,6 +170,76 @@ Trend Scraper → Script Generator → Video Producer → Uploader → Analytics
 
 ---
 
+### BUILD 5.5: Trending Audio Manager ⏱️ 3-4 hours
+**Goal**: Scrape and integrate TikTok trending sounds for 3-5x algorithmic boost
+
+**What You'll Build:**
+
+1. **`autoghost/production/trending_audio_scraper.py`**
+   - Scrape TikTok trending sounds list (unofficial API or web scraping)
+   - Extract metadata:
+     - Sound name
+     - Usage count (how many videos use it)
+     - Trend velocity (growing vs declining)
+     - Sound file URL
+   - Download top 20-30 trending audio files daily
+   - Tag sounds by vibe: upbeat, chill, dramatic, inspirational, comedic
+   - Store metadata in database:
+     ```sql
+     CREATE TABLE trending_sounds (
+         id INTEGER PRIMARY KEY,
+         sound_id VARCHAR(100),
+         title VARCHAR(255),
+         artist VARCHAR(255),
+         vibe VARCHAR(50),
+         usage_count INTEGER,
+         trend_score FLOAT,
+         file_path VARCHAR(255),
+         scraped_at TIMESTAMP
+     );
+     ```
+   - Clean up old/stale trending sounds (>7 days old)
+
+2. **`autoghost/production/audio_matcher.py`**
+   - Match script vibe to appropriate trending sound
+   - Example logic:
+     - "Motivational side hustle" script → upbeat trending sound
+     - "Calm productivity" script → chill trending sound
+     - "Money tips" script → dramatic/inspiring sound
+   - Fallback to royalty-free music if no good match
+   - 70% trending sounds, 30% royalty-free (A/B test this ratio)
+
+3. **Update `autoghost/production/video_assembler.py`** (will implement in BUILD 6)
+   - Add audio selection logic:
+     ```python
+     import random
+     from autoghost.production.audio_matcher import get_trending_sound, get_royalty_free_music
+
+     def select_background_audio(script_vibe):
+         # Use trending sound 70% of the time
+         if random.random() < 0.7:
+             background_audio = get_trending_sound(script_vibe)
+         else:
+             background_audio = get_royalty_free_music(script_vibe)
+         return background_audio
+     ```
+
+**Why This Matters:**
+- Videos with trending sounds get 3-5x more reach on TikTok
+- TikTok algorithm actively boosts content using popular audio
+- Critical for viral growth and discovery
+- **This is the single biggest factor** for algorithmic distribution
+
+**Testing:**
+- Scrape 20+ trending sounds
+- Verify audio files download correctly (check file size, format)
+- Test audio matching (does "upbeat" script get upbeat sounds?)
+- Verify sound metadata is stored in database
+
+**Deliverable:** Trending audio scraper and matcher ready for integration ✅
+
+---
+
 ### BUILD 6: Video Assembly ⏱️ 6-8 hours
 **Goal**: Combine footage and voiceover into final video
 
@@ -179,9 +249,24 @@ Trend Scraper → Script Generator → Video Producer → Uploader → Analytics
      1. Load footage clips
      2. Trim clips to match voiceover duration
      3. Concatenate clips with smooth transitions
-     4. Add voiceover audio track
-     5. Add text overlays/captions (optional but boosts engagement)
-     6. Add background music (low volume, royalty-free)
+     4. **Select background audio** (from BUILD 5.5):
+        ```python
+        # Use trending sound 70% of the time, royalty-free 30%
+        if random.random() < 0.7:
+            background_audio = get_trending_sound(script['vibe'])
+        else:
+            background_audio = get_royalty_free_music(script['vibe'])
+        ```
+     5. **Layer audio properly**:
+        - Background music at 25% volume (subtle, doesn't drown voiceover)
+        - Voiceover at 100% volume (main audio, clearly audible)
+        ```python
+        background_audio = background_audio.volumex(0.25)
+        voiceover = AudioFileClip(voiceover_path)
+        final_audio = CompositeAudioClip([background_audio, voiceover])
+        final_video = final_video.set_audio(final_audio)
+        ```
+     6. Add text overlays/captions (optional but boosts engagement)
    - Output format: 1080x1920 (9:16), MP4, H.264
    - Save to `data/videos/{video_id}.mp4`
 
@@ -194,15 +279,17 @@ Trend Scraper → Script Generator → Video Producer → Uploader → Analytics
 **Testing:**
 - Generate 3-5 complete videos end-to-end
 - Manually watch each video (quality check)
+- **Check audio layering:** Voiceover is clearly audible, background music is subtle
 - Check audio sync (voiceover matches video)
 - Check visual quality (smooth transitions, readable captions)
 - Measure generation time (target: 3-5 min per video)
+- **Verify trending audio:** Generate 10 videos, ~7 should use trending sounds
 
-**Deliverable:** Working video production pipeline ✅
+**Deliverable:** Working video production pipeline with trending audio integration ✅
 
 ---
 
-### BUILD 7: TikTok Upload Automation ⏱️ 8-10 hours ⚠️ HARDEST
+### BUILD 7: TikTok Upload Automation ⏱️ 2-3 DAYS (16-24 hours spread across days) ⚠️ HARDEST & MOST UNPREDICTABLE
 **Goal**: Automate TikTok video uploads via browser automation
 
 **What You'll Build:**
@@ -409,12 +496,13 @@ Trend Scraper → Script Generator → Video Producer → Uploader → Analytics
 - ✅ **BUILD 3:** 10 quality scripts generated
 - ✅ **BUILD 4:** 5 natural-sounding voiceovers
 - ✅ **BUILD 5:** 25+ relevant video clips downloaded
-- ✅ **BUILD 6:** 3 high-quality videos produced
-- ✅ **BUILD 7:** 5 videos uploaded to TikTok, no bans
-- ✅ **BUILD 8:** 5 videos uploaded to YouTube
-- ✅ **BUILD 9:** Analytics pulled for all test videos
+- ✅ **BUILD 5.5:** 20+ trending sounds scraped, audio matcher working ⭐ NEW
+- ✅ **BUILD 6:** 3 high-quality videos produced with trending audio (70%+ use trending sounds)
+- ✅ **BUILD 7:** 5 videos uploaded to TikTok, no bans, backup plan ready
+- ✅ **BUILD 8:** 5 videos uploaded to YouTube successfully
+- ✅ **BUILD 9:** Analytics pulled + A/B test insights generated
 - ✅ **BUILD 10:** System runs autonomously for 3 days
-- ✅ **BUILD 11:** Dashboard shows real-time data
+- ✅ **BUILD 11:** Dashboard shows real-time data + insights
 
 ---
 
@@ -449,7 +537,9 @@ Autoghost/
 │   │   ├── __init__.py
 │   │   ├── footage_downloader.py      # Pexels API
 │   │   ├── voiceover_generator.py     # ElevenLabs
-│   │   ├── video_assembler.py         # MoviePy
+│   │   ├── trending_audio_scraper.py  # TikTok trending sounds ⭐ NEW
+│   │   ├── audio_matcher.py           # Match vibes to sounds ⭐ NEW
+│   │   ├── video_assembler.py         # MoviePy + trending audio
 │   │   └── video_optimizer.py
 │   ├── upload/
 │   │   ├── __init__.py
@@ -572,6 +662,7 @@ Then move to BUILD 2, and so on.
 
 ### Month 1 (Validation)
 - ✅ 10 videos posted per day (2 per account)
+- ✅ **70%+ videos use trending sounds** (critical for algorithmic boost)
 - ✅ 50%+ videos reach >1,000 views
 - ✅ 0 account bans
 - ✅ System runs with <30 min daily monitoring
@@ -588,7 +679,3 @@ Then move to BUILD 2, and so on.
 - ✅ First sales: $2-5k
 
 ---
-
-## Questions?
-
-Start with BUILD 1 and work your way through. Test each build before moving to the next. Good luck!
