@@ -1,3 +1,4 @@
 runauto/
 .env
 __pycache__/
+data/
