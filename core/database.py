@@ -1,5 +1,15 @@
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import (
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    create_engine,
+)
 from sqlalchemy.orm import declarative_base
+from configs.config import DATABASE_PATH
 
 Base = declarative_base()
 
@@ -65,3 +75,8 @@ class TrendingSound(Base):
     usage_count = Column(Integer, nullable=False)
     file_path = Column(String)
     created_at = Column(DateTime, nullable=False)
+
+
+def init_db():
+    engine = create_engine(f"sqlite:///{DATABASE_PATH}")
+    Base.metadata.create_all(engine)
