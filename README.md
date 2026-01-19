@@ -24,3 +24,4 @@ python -c "from core.database import init_db; init_db()"
 python -c "from configs.config import DATABASE_PATH; print(DATABASE_PATH)"
 python -c "from core.database import init_db; init_db()"
 ```
+huh
