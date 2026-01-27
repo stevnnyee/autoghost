@@ -80,3 +80,5 @@ class TrendingSound(Base):
 def init_db():
     engine = create_engine(f"sqlite:///{DATABASE_PATH}")
     Base.metadata.create_all(engine)
+
+asd
