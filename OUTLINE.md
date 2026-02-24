@@ -679,4 +679,3 @@ Then move to BUILD 2, and so on.
 - ✅ First sales: $2-5k
 
 ---
-Just for the green
