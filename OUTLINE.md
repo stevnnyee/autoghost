@@ -61,7 +61,7 @@ Trend Scraper → Script Generator → Video Producer → Uploader → Analytics
 ---
 
 ### BUILD 2: Trend Scraping ⏱️ 4-6 hours
-**Goal**: Pull trending topics from Reddit/Twitter
+**Goal**: Pull trending topics from Reddit/Twitter/Google Trends
 
 **What You'll Build:**
 1. **`autoghost/scrapers/reddit_scraper.py`**
@@ -75,8 +75,16 @@ Trend Scraper → Script Generator → Video Producer → Uploader → Analytics
    - Track trending hashtags (#sidehustle, #financetips, etc.)
    - Extract trending topics by engagement
 
-3. **`autoghost/scrapers/trend_analyzer.py`**
+3. **`autoghost/scrapers/google_trends_scraper.py`** ⭐ NEW
+   - Use `pytrends` library (free, no API key required)
+   - Pull trending searches and rising topics by category
+   - Target categories matching account niches (business, finance, self-improvement)
+   - Extract related queries and interest-over-time data
+   - Complements Reddit by showing what the general public is searching for
+
+4. **`autoghost/scrapers/trend_analyzer.py`**
    - Score trends: (upvotes + comments) × recency_weight
+   - Normalize scores across sources (Reddit, Twitter, Google Trends)
    - Match trends to account niches (finance, productivity, etc.)
    - Store top 10-20 trends per niche in database
 
@@ -84,6 +92,7 @@ Trend Scraper → Script Generator → Video Producer → Uploader → Analytics
 - Run scrapers manually, verify 20+ trends stored in database
 - Check trend quality (are they relevant to your niches?)
 - Verify no duplicates
+- Verify Google Trends data complements Reddit data (different angles on topics)
 
 **Deliverable:** Working trend scraping system that finds viral topics ✅
 
@@ -528,6 +537,7 @@ Autoghost/
 │   │   ├── __init__.py
 │   │   ├── reddit_scraper.py
 │   │   ├── twitter_scraper.py
+│   │   ├── google_trends_scraper.py  # Google Trends (pytrends) ⭐ NEW
 │   │   └── trend_analyzer.py
 │   ├── content/
 │   │   ├── __init__.py
