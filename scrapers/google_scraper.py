@@ -84,7 +84,13 @@ class GoogleTrendsScraper(BaseScraper):
                     continue
                 for _, row in rising_df.iterrows():
                     query = row["query"].lower()
-                    if not any(word in query for word in kw.lower().split()):
+                    words = kw.lower().split()
+                    found = False
+                    for word in words:
+                        if word in query:
+                            found = True
+                            break
+                    if not found:
                         continue
                     trends.append(
                         {
