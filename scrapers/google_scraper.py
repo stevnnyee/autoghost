@@ -1,7 +1,10 @@
 import time
+import logging
 
 from pytrends.request import TrendReq
 from scrapers.base_scraper import BaseScraper
+
+logging.basicConfig(level=logging.INFO)
 
 NICHE_KEYWORDS = {
     "finance": [
@@ -44,7 +47,8 @@ class GoogleTrendsScraper(BaseScraper):
             for kw in keywords:
                 try:
                     related[kw] = self.pytrends.related_queries()[kw]["rising"]
-                except (KeyError, TypeError):
+                except (KeyError, TypeError) as e:
+                    logging.warning(f"No rising queries for '{kw}': {e}")
                     related[kw] = None
             time.sleep(2)
 
@@ -53,7 +57,8 @@ class GoogleTrendsScraper(BaseScraper):
         try:
             trending = self.pytrends.trending_searches(pn="united_states")
             raw_data["_trending"] = trending
-        except Exception:
+        except Exception as e:
+            logging.warning(f"Failed to fetch trending searches: {e}")
             raw_data["_trending"] = None
         return raw_data
 
@@ -100,7 +105,7 @@ class GoogleTrendsScraper(BaseScraper):
                             "score": float(value),
                         }
                     )
-                    
+
         return trends
 
     def score(self, trends):
