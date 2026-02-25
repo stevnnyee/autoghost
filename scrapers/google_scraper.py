@@ -83,6 +83,9 @@ class GoogleTrendsScraper(BaseScraper):
                 if rising_df is None or rising_df.empty:
                     continue
                 for _, row in rising_df.iterrows():
+                    query = row["query"].lower()
+                    if not any(word in query for word in kw.lower().split()):
+                        continue
                     trends.append(
                         {
                             "title": row["query"],
