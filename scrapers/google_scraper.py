@@ -119,13 +119,12 @@ class GoogleTrendsScraper(BaseScraper):
         return trends
 
     def score(self, trends):
-        seen = set()
-        unique = []
+        best = {}
         for t in trends:
-            if t["title"].lower() not in seen:
-                seen.add(t["title"].lower())
-                unique.append(t)
-        return sorted(unique, key=lambda t: t["score"], reverse=True)
+            key = t["title"].lower()
+            if key not in best or t["score"] > best[key]["score"]:
+                best[key] = t
+        return sorted(best.values(), key=lambda t: t["score"], reverse=True)
 
 
 if __name__ == "__main__":
