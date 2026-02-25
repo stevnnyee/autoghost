@@ -1,3 +1,5 @@
 python-dotenv
 sqlalchemy
 ruff
+praw
+pytrends
