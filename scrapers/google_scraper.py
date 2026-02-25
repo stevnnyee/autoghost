@@ -44,9 +44,10 @@ class GoogleTrendsScraper(BaseScraper):
             time.sleep(2)
 
             related = {}
+            all_related = self.pytrends.related_queries()
             for kw in keywords:
                 try:
-                    related[kw] = self.pytrends.related_queries()[kw]["rising"]
+                    related[kw] = all_related[kw]["rising"]
                 except (KeyError, TypeError) as e:
                     logging.warning(f"No rising queries for '{kw}': {e}")
                     related[kw] = None
