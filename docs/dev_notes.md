@@ -36,4 +36,4 @@
 **To improve:**
 - Normalize rising scores vs interest scores (different units)
 - Language filter for non-English results
-- Add Reddit scraper when API access available
+- Add Reddit scraper when API access available wait
